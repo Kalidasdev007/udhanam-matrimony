@@ -159,21 +159,21 @@ export default function Bookings() {
                   </div>
 
                   <div className="flex items-center gap-2 border-t border-border bg-muted/30 p-4 md:border-l md:border-t-0">
+                    {booking.status === "confirmed" && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={`tel:${booking.astrologer.phone_number}`}>
+                          <Phone className="mr-1.5 h-4 w-4" />
+                          Call Now
+                        </a>
+                      </Button>
+                    )}
                     {(booking.status === "confirmed" || booking.status === "completed") && (
-                      <>
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`tel:${booking.astrologer.phone_number}`}>
-                            <Phone className="mr-1.5 h-4 w-4" />
-                            Call Now
-                          </a>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/messages?booking=${booking.id}`}>
-                            <MessageCircle className="mr-1.5 h-4 w-4" />
-                            Chat
-                          </Link>
-                        </Button>
-                      </>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to={`/messages?booking=${booking.id}`}>
+                          <MessageCircle className="mr-1.5 h-4 w-4" />
+                          Chat
+                        </Link>
+                      </Button>
                     )}
                   </div>
                 </div>
