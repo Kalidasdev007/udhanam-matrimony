@@ -1,14 +1,16 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Send, MessageCircle, Loader2, User } from "lucide-react";
+import { Send, MessageCircle, Loader2, User, Bell } from "lucide-react";
 import { format } from "date-fns";
+import { useAdminMessageNotifications } from "@/hooks/useAdminMessageNotifications";
 
 interface Message {
   id: string;
@@ -38,7 +40,25 @@ export default function AdminMessages() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [unreadConversations, setUnreadConversations] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle new message notifications
+  const handleNewMessageNotification = useCallback((message: { booking_id: string | null; sender_id: string }) => {
+    if (message.booking_id && message.sender_id !== user?.id) {
+      // Add to unread if not currently viewing this conversation
+      if (activeConversation?.id !== message.booking_id) {
+        setUnreadConversations(prev => new Set(prev).add(message.booking_id!));
+      }
+      // Refresh messages if viewing this conversation
+      if (activeConversation?.id === message.booking_id) {
+        fetchMessages();
+      }
+    }
+  }, [activeConversation?.id, user?.id]);
+
+  // Enable real-time notifications for admin
+  useAdminMessageNotifications(user?.id, handleNewMessageNotification);
 
   useEffect(() => {
     if (!authLoading) {
@@ -202,10 +222,18 @@ export default function AdminMessages() {
                   No conversations yet.
                 </p>
               ) : (
-                conversations.map((conv) => (
+              conversations.map((conv) => (
                   <button
                     key={conv.id}
-                    onClick={() => setActiveConversation(conv)}
+                    onClick={() => {
+                      setActiveConversation(conv);
+                      // Remove from unread when clicking
+                      setUnreadConversations(prev => {
+                        const newSet = new Set(prev);
+                        newSet.delete(conv.id);
+                        return newSet;
+                      });
+                    }}
                     className={`w-full rounded-lg p-3 text-left transition-colors ${
                       activeConversation?.id === conv.id
                         ? "bg-primary text-primary-foreground"
@@ -213,15 +241,28 @@ export default function AdminMessages() {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      <div className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
                         activeConversation?.id === conv.id ? "bg-primary-foreground/20" : "bg-gradient-gold"
                       }`}>
                         <User className={`h-5 w-5 ${
                           activeConversation?.id === conv.id ? "text-primary-foreground" : "text-primary-foreground"
                         }`} />
+                        {unreadConversations.has(conv.id) && (
+                          <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive"></span>
+                          </span>
+                        )}
                       </div>
-                      <div>
-                        <span className="block font-medium">{conv.customer_name}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="block font-medium">{conv.customer_name}</span>
+                          {unreadConversations.has(conv.id) && (
+                            <Badge variant="destructive" className="ml-2 h-5 px-1.5 text-xs">
+                              <Bell className="h-3 w-3" />
+                            </Badge>
+                          )}
+                        </div>
                         <span className={`text-xs ${
                           activeConversation?.id === conv.id ? "text-primary-foreground/70" : "text-muted-foreground"
                         }`}>
