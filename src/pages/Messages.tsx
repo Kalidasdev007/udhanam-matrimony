@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Send, MessageCircle, Loader2 } from "lucide-react";
+import { Send, MessageCircle, Loader2, Bell } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
 interface Message {
@@ -40,6 +41,7 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [unreadBookings, setUnreadBookings] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,10 +56,45 @@ export default function Messages() {
     }
   }, [user]);
 
+  // Subscribe to all new messages for unread tracking
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("user-unread-messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          const msg = payload.new as Message;
+          if (msg.sender_id !== user.id && msg.booking_id) {
+            if (msg.booking_id !== activeBooking) {
+              setUnreadBookings((prev) => new Set(prev).add(msg.booking_id!));
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, activeBooking]);
+
   useEffect(() => {
     if (activeBooking) {
       fetchMessages();
       subscribeToMessages();
+      // Clear unread when opening a conversation
+      setUnreadBookings((prev) => {
+        const next = new Set(prev);
+        next.delete(activeBooking);
+        return next;
+      });
     }
   }, [activeBooking]);
 
@@ -194,14 +231,29 @@ export default function Messages() {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      <div className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
                         activeBooking === booking.id ? "bg-primary-foreground/20" : "bg-gradient-gold"
                       }`}>
                         <MessageCircle className={`h-5 w-5 ${
                           activeBooking === booking.id ? "text-primary-foreground" : "text-primary-foreground"
                         }`} />
+                        {unreadBookings.has(booking.id) && (
+                          <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive"></span>
+                          </span>
+                        )}
                       </div>
-                      <span className="font-medium">{booking.astrologer.name}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{booking.astrologer.name}</span>
+                          {unreadBookings.has(booking.id) && (
+                            <Badge variant="destructive" className="ml-2 h-5 px-1.5 text-xs">
+                              <Bell className="h-3 w-3" />
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </button>
                 ))
