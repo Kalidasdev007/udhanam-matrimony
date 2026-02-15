@@ -178,8 +178,10 @@ export function ChatbotWidget() {
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <Bot className="h-4 w-4 text-primary animate-pulse" />
                 </div>
-                <div className="rounded-2xl bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  Thinking…
+                <div className="flex items-center gap-1 rounded-2xl bg-muted px-4 py-3">
+                  <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
+                  <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
+                  <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
                 </div>
               </div>
             )}
