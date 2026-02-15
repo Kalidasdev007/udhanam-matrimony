@@ -21,6 +21,7 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminMessages from "./pages/admin/AdminMessages";
 import NotFound from "./pages/NotFound";
+import { ChatbotWidget } from "./components/ChatbotWidget";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <ChatbotWidget />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
