@@ -163,6 +163,14 @@ export default function Auth() {
               )}
             </div>
 
+            {!isSignUp && (
+              <div className="text-right">
+                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
+
             <Button type="submit" variant="gold" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSignUp ? "Create Account" : "Sign In"}
