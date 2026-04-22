@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, MessageCircle, User, History, Star, Phone } from "lucide-react";
+import { Calendar, MessageCircle, User, History, Star, Phone, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 
 interface Booking {
