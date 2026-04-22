@@ -200,12 +200,20 @@ export default function Dashboard() {
                         {booking.status}
                       </span>
                       {(booking.status === "confirmed" || booking.status === "completed") && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`tel:${booking.astrologer.phone_number}`}>
-                            <Phone className="mr-1.5 h-4 w-4" />
-                            Call Now
-                          </a>
-                        </Button>
+                        <>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/messages?booking=${booking.id}`}>
+                              <MessageSquare className="mr-1.5 h-4 w-4" />
+                              Chat
+                            </Link>
+                          </Button>
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={`tel:${booking.astrologer.phone_number}`}>
+                              <Phone className="mr-1.5 h-4 w-4" />
+                              Call Now
+                            </a>
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
