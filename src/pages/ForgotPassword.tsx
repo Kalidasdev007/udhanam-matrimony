@@ -72,8 +72,8 @@ export default function ForgotPassword() {
           )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            <Link to="/admin-login" className="text-primary hover:underline">
-              ← Back to admin login
+            <Link to="/auth" className="text-primary hover:underline">
+              ← Back to login
             </Link>
           </p>
         </div>
