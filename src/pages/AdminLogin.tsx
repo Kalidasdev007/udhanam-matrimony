@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,19 +113,10 @@ export default function AdminLogin() {
             </Button>
           </form>
 
-          <div className="mt-4 flex items-center justify-between text-sm">
-            <Link to="/forgot-password" className="text-primary hover:underline">
-              Forgot password?
-            </Link>
-            <Link to="/auth?mode=signup" className="text-primary hover:underline">
-              Register
-            </Link>
-          </div>
-
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            <Link to="/auth" className="text-primary hover:underline">
+            <a href="/auth" className="text-primary hover:underline">
               ← Back to customer login
-            </Link>
+            </a>
           </p>
         </div>
       </div>
