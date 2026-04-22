@@ -113,6 +113,15 @@ export default function AdminLogin() {
             </Button>
           </form>
 
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <Link to="/forgot-password" className="text-primary hover:underline">
+              Forgot password?
+            </Link>
+            <Link to="/auth?mode=signup" className="text-primary hover:underline">
+              Register
+            </Link>
+          </div>
+
           <p className="mt-6 text-center text-sm text-muted-foreground">
             <Link to="/auth" className="text-primary hover:underline">
               ← Back to customer login
